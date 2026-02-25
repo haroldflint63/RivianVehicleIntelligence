@@ -1,5 +1,12 @@
 # Rivian On-Vehicle Intelligence — Multi-Agent AI System
 
+![Python](https://img.shields.io/badge/Python-3.11%2B-blue?logo=python&logoColor=white)
+![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green)
+![WebSocket](https://img.shields.io/badge/WebSocket-ws%3A%2F%2F8765-yellow)
+![LLM](https://img.shields.io/badge/LLM-Groq%20llama--3.3--70b-orange)
+![Tests](https://img.shields.io/badge/Tests-pytest-informational?logo=pytest)
+
 A production-grade **Multi-Agent AI** telemetry system for Rivian EVs built with:
 
 | Layer | Tech |
@@ -10,37 +17,27 @@ A production-grade **Multi-Agent AI** telemetry system for Rivian EVs built with
 | **Persistence** | SQLite · alert feedback loop (inspired by [rivian/ai-sast](https://github.com/rivian/ai-sast)) |
 | **Diagnostics** | OBD-II DTC codes · CVSS-style Vehicle Risk Scores (inspired by [rivian/odxtools](https://github.com/rivian/odxtools)) |
 
+## What Is This?
+
+**Rivian On-Vehicle Intelligence** is a production-grade, real-time telemetry and multi-agent AI system for Rivian EVs. Five specialized AI agents run concurrently on a Python `asyncio` backend, analyzing live sensor data every second. They detect motor anomalies using a rolling Z-Score, predict driving range via an EPA efficiency model, manage battery preconditioning in cold weather, track drivetrain health via an Exponentially Weighted Mean stress model, and generate driver-friendly natural-language status summaries via a free Groq LLM — all streamed over WebSocket to a Flutter 3 mobile dashboard in real time.
+
 ---
 
 ## Architecture
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│                 VehicleIntelligenceOrchestrator                  │
-│                                                                  │
-│  TelemetrySimulator ──► TelemetryData (every 1 s)                │
-│                              │                                   │
-│        ┌─────────────────────┼──────────────────────┐            │
-│        ▼                     ▼                      ▼            │
-│  AnomalyDetection   ContextAwarePlanner      RangePrediction     │
-│  Agent (Z-Score)    Agent (cold/battery)     Agent (EPA model)   │
-│        │                     │                      │            │
-│        ▼                     ▼                      ▼            │
-│  PredictiveMaintenance                      StatusReporter       │
-│  Agent (EWM stress)                         Agent (Groq LLM)    │
-│        │                     │                      │            │
-│        └─────────────────────┴──────────────────────┘            │
-│                              │                                   │
-│             SQLite (alert_db) ◄── operator feedback              │
-│                              │                                   │
-│                    WebSocket broadcast                            │
-│                    ws://0.0.0.0:8765                              │
-└──────────────────────────────────────────────────────────────────┘
-                              │
-                    Flutter Dashboard UI
-                  (telemetry + agent decisions
-                   + priority alerts + LLM report
-                   + AI support chat)
+```mermaid
+graph TD
+    SIM[TelemetrySimulator<br>every 1 s] --> TD[TelemetryData]
+    TD --> A1[AnomalyDetectionAgent<br>Z-Score · DTC P0218]
+    TD --> A2[ContextAwarePlannerAgent<br>Battery Warming · DTC P1A00]
+    TD --> A3[RangePredictionAgent<br>EPA Model · DTC P1A10]
+    A1 --> A4[PredictiveMaintenanceAgent<br>EWM Stress · DTC B1090]
+    A2 --> A4
+    A3 --> A5[VehicleStatusReporterAgent<br>Groq LLM · DTC U1001]
+    A4 --> DB[(SQLite<br>alert_db)]
+    A5 --> DB
+    DB --> WS[WebSocket Broadcast<br>ws://0.0.0.0:8765]
+    WS --> UI[Flutter Dashboard UI<br>Telemetry · Alerts · LLM Report · Chat]
 ```
 
 ---
@@ -165,6 +162,60 @@ flutter run
 
 > **Note:** For a physical device, change `localhost` in `lib/main.dart` to your machine's LAN IP.  
 > Example: `ws://192.168.1.42:8765`
+
+---
+
+## Project Structure
+
+```
+RivianVehicleIntelligence/
+├── backend/
+│   ├── server.py              # WebSocket server + VehicleIntelligenceOrchestrator
+│   ├── agents.py              # All 5 AI agent classes + TelemetryData
+│   ├── alert_db.py            # SQLite alert persistence (rivian/ai-sast pattern)
+│   ├── dtc_codes.py           # OBD-II DTC code mapper (rivian/odxtools pattern)
+│   ├── requirements.txt
+│   ├── .env.example
+│   └── tests/
+│       ├── conftest.py
+│       ├── test_anomaly_agent.py
+│       ├── test_range_agent.py
+│       ├── test_maintenance_agent.py
+│       ├── test_planner_agent.py
+│       ├── test_reporter_agent.py
+│       └── fixtures/
+│           └── sample_telemetry.json
+└── flutter_app/               # Flutter 3 mobile dashboard
+    └── lib/
+        └── main.dart
+```
+
+---
+
+## Running Tests
+
+```bash
+cd backend
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+pytest tests/ -v
+```
+
+> Tests use mocked Groq HTTP calls — no real API key is needed to run them.
+
+---
+
+## Demo
+
+> 📸 Screenshots and video walkthrough coming soon — see the [`demos/`](demos/) folder.
+
+| What you'll see | Description |
+|---|---|
+| Live telemetry dashboard | Real-time motor temp, battery %, speed, RPM updated every second |
+| Anomaly alert banner | Red pulsing slide-in banner when Z-Score spike is detected |
+| Battery warming bar | Cyan progress bar in cold-weather preconditioning mode |
+| LLM status card | Groq-powered driver summary with fade-in animation |
+| AI support chat | Conversational support via the Rivian AI assistant |
 
 ---
 

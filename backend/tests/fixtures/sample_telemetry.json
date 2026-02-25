@@ -1,0 +1,112 @@
+[
+  {
+    "scenario": "normal_highway_driving",
+    "motor_temp": 158.3,
+    "battery_percent": 74.2,
+    "outside_temp": 72.0,
+    "cabin_temp": 71.8,
+    "vehicle_speed": 60.0,
+    "battery_voltage": 354.6,
+    "regen_power": 2.1,
+    "motor_rpm": 3800.0
+  },
+  {
+    "scenario": "cold_weather_battery_warming",
+    "motor_temp": 142.1,
+    "battery_percent": 55.0,
+    "outside_temp": 22.0,
+    "cabin_temp": 68.5,
+    "vehicle_speed": 35.0,
+    "battery_voltage": 342.0,
+    "regen_power": 1.4,
+    "motor_rpm": 2200.0
+  },
+  {
+    "scenario": "cold_weather_low_battery_warning",
+    "motor_temp": 138.5,
+    "battery_percent": 12.0,
+    "outside_temp": 18.0,
+    "cabin_temp": 65.0,
+    "vehicle_speed": 20.0,
+    "battery_voltage": 310.0,
+    "regen_power": 0.5,
+    "motor_rpm": 1500.0
+  },
+  {
+    "scenario": "motor_temp_anomaly_warning",
+    "motor_temp": 228.7,
+    "battery_percent": 68.0,
+    "outside_temp": 55.0,
+    "cabin_temp": 72.0,
+    "vehicle_speed": 55.0,
+    "battery_voltage": 350.0,
+    "regen_power": 3.2,
+    "motor_rpm": 5200.0
+  },
+  {
+    "scenario": "motor_temp_anomaly_critical",
+    "motor_temp": 268.7,
+    "battery_percent": 65.0,
+    "outside_temp": 60.0,
+    "cabin_temp": 73.0,
+    "vehicle_speed": 70.0,
+    "battery_voltage": 348.0,
+    "regen_power": 4.0,
+    "motor_rpm": 6800.0
+  },
+  {
+    "scenario": "high_speed_drag",
+    "motor_temp": 175.0,
+    "battery_percent": 80.0,
+    "outside_temp": 68.0,
+    "cabin_temp": 72.0,
+    "vehicle_speed": 85.0,
+    "battery_voltage": 356.0,
+    "regen_power": 1.0,
+    "motor_rpm": 7200.0
+  },
+  {
+    "scenario": "regen_braking_credit",
+    "motor_temp": 145.0,
+    "battery_percent": 70.0,
+    "outside_temp": 65.0,
+    "cabin_temp": 71.0,
+    "vehicle_speed": 40.0,
+    "battery_voltage": 353.0,
+    "regen_power": 18.5,
+    "motor_rpm": 2800.0
+  },
+  {
+    "scenario": "full_battery_warm_weather",
+    "motor_temp": 150.0,
+    "battery_percent": 100.0,
+    "outside_temp": 75.0,
+    "cabin_temp": 72.0,
+    "vehicle_speed": 45.0,
+    "battery_voltage": 360.0,
+    "regen_power": 2.0,
+    "motor_rpm": 3000.0
+  },
+  {
+    "scenario": "moderate_stress_drivetrain",
+    "motor_temp": 195.0,
+    "battery_percent": 50.0,
+    "outside_temp": 50.0,
+    "cabin_temp": 70.0,
+    "vehicle_speed": 65.0,
+    "battery_voltage": 338.0,
+    "regen_power": 5.0,
+    "motor_rpm": 5800.0
+  },
+  {
+    "scenario": "stationary_charging",
+    "motor_temp": 98.0,
+    "battery_percent": 45.0,
+    "outside_temp": 45.0,
+    "cabin_temp": 69.0,
+    "vehicle_speed": 0.0,
+    "battery_voltage": 330.0,
+    "regen_power": 0.0,
+    "motor_rpm": 0.0
+  }
+]
