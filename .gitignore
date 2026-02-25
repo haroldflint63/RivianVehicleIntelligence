@@ -5,6 +5,10 @@ backend/*.pyc
 backend/.env
 backend/alerts.db
 backend/server.log
+backend/tests/__pycache__/
+**/__pycache__/
+*.pyc
+.pytest_cache/
 
 # ── Flutter app ───────────────────────────────────────────────
 flutter_app/.dart_tool/
