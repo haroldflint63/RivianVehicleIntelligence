@@ -1,0 +1,29 @@
+name: rivian_vehicle_intelligence
+description: Rivian On-Vehicle Intelligence — Multi-Agent AI Dashboard
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # WebSocket client
+  web_socket_channel: ^2.4.5
+
+  # State management
+  provider: ^6.1.2
+
+  # Icons
+  cupertino_icons: ^1.0.6
+  http: ^1.6.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
