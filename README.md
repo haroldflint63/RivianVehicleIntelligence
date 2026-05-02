@@ -214,7 +214,23 @@ pytest tests/ -v
 
 ## Demo
 
-> 📸 Screenshots and video walkthrough coming soon — see the [`demos/`](demos/) folder.
+**🌐 Live URL:** https://rivian-vehicle-intelligence.vercel.app  
+**🩺 Backend health:** https://rivian-vehicle-intelligence-backend.onrender.com/
+
+### 60-second interview walkthrough
+| Time | What happens | Why it matters |
+|---|---|---|
+| **0:00** | Open the Vercel URL — top-right shows green "DEMO MODE · v3.0" pill once the WebSocket handshake succeeds | Confirms client ↔ Render backend over secure WSS |
+| **0:05** | Telemetry sparklines start updating once per second | 5 agents are processing live data |
+| **0:10** | Motor-temp **anomaly Z-spike** auto-fires — red alert strip slides in with DTC code + CVSS score | `AnomalyDetectionAgent` (numpy z-score) + `rivian/odxtools` integration |
+| **0:18** | **Cold-weather preconditioning** plan kicks in — cyan battery-warming bar appears | `ContextAwarePlannerAgent` |
+| **0:25** | LLM status card refreshes with a natural-language driver summary | `VehicleStatusReporterAgent` calling Groq `llama-3.3-70b-versatile` |
+| **0:35** | Tap the **AI Chat** tab, ask *"What's wrong with my truck?"* | Round-trips through Groq, grounded in current telemetry |
+| **0:50** | Open **History** — see the alert with feedback thumbs | `rivian/ai-sast` SQLite feedback loop |
+
+> The backend self-pings every 10 minutes (`KEEPALIVE_URL`) so Render's free
+> tier doesn't sleep between interviews. First request after a long idle may
+> still take ~30 s to wake — the badge pulses while reconnecting.
 
 | What you'll see | Description |
 |---|---|
