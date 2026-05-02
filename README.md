@@ -1,11 +1,18 @@
 # Rivian On-Vehicle Intelligence — Multi-Agent AI System
 
+[![Live Demo](https://img.shields.io/badge/▶_Live_Demo-Vercel-000?logo=vercel)](https://rivian-vehicle-intelligence.vercel.app)
+[![Backend](https://img.shields.io/website?url=https%3A%2F%2Frivian-vehicle-intelligence-backend.onrender.com%2F&label=Render%20Backend&up_message=online&down_message=waking%20up)](https://rivian-vehicle-intelligence-backend.onrender.com/)
 ![Python](https://img.shields.io/badge/Python-3.11%2B-blue?logo=python&logoColor=white)
 ![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![WebSocket](https://img.shields.io/badge/WebSocket-ws%3A%2F%2F8765-yellow)
 ![LLM](https://img.shields.io/badge/LLM-Groq%20llama--3.3--70b-orange)
 ![Tests](https://img.shields.io/badge/Tests-pytest-informational?logo=pytest)
+
+> **Live demo for interviews:** open the Vercel link above. The Flutter
+> dashboard auto-fires a motor-temp spike + cold-weather scenario 5 s after
+> connect, so you'll see all five agents and the Groq LLM working immediately.
+> The backend self-pings every 10 minutes to defeat Render free-tier sleep.
 
 A production-grade **Multi-Agent AI** telemetry system for Rivian EVs built with:
 

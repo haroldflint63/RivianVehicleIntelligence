@@ -43,6 +43,16 @@ GROQ_API_KEY: str = os.environ.get("GROQ_API_KEY", "")
 WS_HOST: str      = os.environ.get("WS_HOST", "0.0.0.0")
 # Render / Heroku / Fly inject $PORT — fall back to WS_PORT, then 8765
 WS_PORT: int      = int(os.environ.get("PORT") or os.environ.get("WS_PORT") or "8765")
+# Demo mode: auto-fire SIMULATE_SPIKE then SIMULATE_COLD shortly after the
+# first client connects, so an interview demo is never staring at a flat
+# baseline. Set DEMO_MODE=0 to disable.
+DEMO_MODE: bool   = os.environ.get("DEMO_MODE", "1") not in ("0", "false", "False")
+# Self keep-alive: if KEEPALIVE_URL is set, the server will GET it every
+# KEEPALIVE_INTERVAL_SEC (default 600 = 10 min) to prevent Render free-tier
+# sleep. Set to your public Render URL, e.g.
+#   https://rivian-vehicle-intelligence-backend.onrender.com
+KEEPALIVE_URL: str          = os.environ.get("KEEPALIVE_URL", "")
+KEEPALIVE_INTERVAL_SEC: int = int(os.environ.get("KEEPALIVE_INTERVAL_SEC", "600"))
 
 
 # ── HTTP health check (so Render/Fly can hit GET / before WS upgrade) ─
@@ -328,6 +338,7 @@ async def ws_handler(
             "sqlite_feedback_loop",
             "nats_subjects",
         ],
+        "demo_mode": DEMO_MODE,
         "version":   "3.0",
         "timestamp": time.time(),
     }))
@@ -357,10 +368,41 @@ async def ws_handler(
 
 # ── Main telemetry loop ──────────────────────────────────────────────
 
+async def _fire_demo(simulator: "TelemetrySimulator") -> None:
+    """Fire a scripted spike + cold-weather sequence for the demo."""
+    await asyncio.sleep(5)
+    log.info("[DEMO] Auto-triggering motor-temp spike")
+    simulator.trigger_spike()
+    await asyncio.sleep(8)
+    log.info("[DEMO] Auto-triggering cold-weather phase (45 ticks)")
+    simulator.trigger_cold(45)
+
+
+async def _keepalive_loop() -> None:
+    """Self-ping to prevent Render free-tier sleep."""
+    if not KEEPALIVE_URL:
+        return
+    log.info("[KEEPALIVE] Pinging %s every %ds", KEEPALIVE_URL, KEEPALIVE_INTERVAL_SEC)
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        while True:
+            try:
+                r = await client.get(KEEPALIVE_URL)
+                log.debug("[KEEPALIVE] %s -> %d", KEEPALIVE_URL, r.status_code)
+            except Exception as exc:
+                log.warning("[KEEPALIVE] failed: %s", exc)
+            await asyncio.sleep(KEEPALIVE_INTERVAL_SEC)
+
+
 async def telemetry_loop(orchestrator: VehicleIntelligenceOrchestrator) -> None:
     simulator = TelemetrySimulator()
+    demo_fired = False  # demo auto-trigger only fires once per server lifetime
 
     while True:
+        # Demo mode: 5 seconds after the first client connects, queue a
+        # spike + cold-weather event so the dashboard is never flat.
+        if DEMO_MODE and not demo_fired and CLIENTS:
+            demo_fired = True
+            asyncio.create_task(_fire_demo(simulator))
         # Drain command queue
         while not COMMAND_QUEUE.empty():
             try:
@@ -485,7 +527,10 @@ async def main() -> None:
             ws_handler, WS_HOST, WS_PORT,
             process_request=_health_check,
         ):
-            await telemetry_loop(orchestrator)
+            await asyncio.gather(
+                telemetry_loop(orchestrator),
+                _keepalive_loop(),
+            )
     except asyncio.CancelledError:
         pass
     finally:

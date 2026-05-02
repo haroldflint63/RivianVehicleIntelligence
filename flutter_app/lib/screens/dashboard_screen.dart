@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../main.dart';
@@ -128,7 +129,74 @@ class _DashboardScreenState extends State<DashboardScreen>
             ),
           ]),
         ),
+
+        // ── Demo Mode badge (visible only when backend says demo_mode=true) ──
+        const Positioned(top: 12, right: 12, child: _DemoBadge()),
       ]),
+    );
+  }
+}
+
+class _DemoBadge extends StatelessWidget {
+  const _DemoBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    final ws = context.watch<WebSocketService>();
+    if (!ws.demoMode) return const SizedBox.shrink();
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () {
+          Clipboard.setData(const ClipboardData(
+            text: 'https://github.com/haroldflint63/RivianVehicleIntelligence',
+          ));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              behavior: SnackBarBehavior.floating,
+              content: Text('Repo link copied'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: RivianColors.green.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: RivianColors.green.withValues(alpha: 0.55),
+              width: 1,
+            ),
+          ),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            Container(
+              width: 8, height: 8,
+              decoration: BoxDecoration(
+                color: RivianColors.green,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: RivianColors.green.withValues(alpha: 0.7),
+                    blurRadius: 6,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'DEMO MODE · v${ws.serverVersion}',
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.6,
+                color: Colors.white,
+              ),
+            ),
+          ]),
+        ),
+      ),
     );
   }
 }

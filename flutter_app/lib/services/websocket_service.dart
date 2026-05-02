@@ -64,6 +64,12 @@ class WebSocketService extends ChangeNotifier {
   /// DB stats received from server (rivian/ai-sast pattern).
   Map<String, dynamic> dbStats = {};
 
+  /// True when the backend advertises demo mode in its handshake.
+  bool demoMode = false;
+
+  /// Server version reported in the handshake (e.g. "3.0").
+  String serverVersion = '';
+
   // ── public streams ────────────────────────────────────────────────
   final _alertCtrl   = StreamController<AgentDecision>.broadcast();
   final _feedbackCtrl = StreamController<Map<String, dynamic>>.broadcast();
@@ -185,6 +191,9 @@ class WebSocketService extends ChangeNotifier {
           debugPrint('[WS] Handshake v${msg['version']}: ${msg['message']}');
           final features = (msg['features'] as List?)?.cast<String>() ?? [];
           debugPrint('[WS] Server features: ${features.join(', ')}');
+          demoMode = msg['demo_mode'] == true;
+          serverVersion = (msg['version'] as String?) ?? '';
+          notifyListeners();
 
         case 'TELEMETRY_UPDATE':
           final telemetry =
