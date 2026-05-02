@@ -7,7 +7,7 @@
 # ─────────────────────────────────────────────────────────────────────
 set -euo pipefail
 
-FLUTTER_VERSION="${FLUTTER_VERSION:-3.24.5}"
+FLUTTER_VERSION="${FLUTTER_VERSION:-3.27.4}"
 FLUTTER_HOME="$HOME/flutter"
 
 if [ ! -d "$FLUTTER_HOME" ]; then
