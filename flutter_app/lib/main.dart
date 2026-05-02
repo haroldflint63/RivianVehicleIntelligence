@@ -18,9 +18,15 @@ void main() {
     statusBarIconBrightness: Brightness.light,
     systemNavigationBarColor: Color(0xFF060810),
   ));
+  // WS endpoint — override at build time:
+  //   flutter build web --dart-define=WS_URL=wss://your.onrender.com
+  const wsUrl = String.fromEnvironment(
+    'WS_URL',
+    defaultValue: 'ws://localhost:8765',
+  );
   runApp(
     ChangeNotifierProvider(
-      create: (_) => WebSocketService('ws://localhost:8765'),
+      create: (_) => WebSocketService(wsUrl),
       child: const RivianApp(),
     ),
   );

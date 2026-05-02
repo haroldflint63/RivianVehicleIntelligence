@@ -1,0 +1,21 @@
+# Render Blueprint — deploys the Rivian backend WebSocket server.
+# Push this repo to GitHub, then on https://dashboard.render.com:
+#   New + → Blueprint → pick this repo → Apply.
+# After deploy, set GROQ_API_KEY in the Render dashboard (it's marked sync:false).
+services:
+  - type: web
+    name: rivian-vehicle-intelligence-backend
+    runtime: python
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: python server.py
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+      - key: GROQ_API_KEY
+        sync: false
+      - key: WS_HOST
+        value: "0.0.0.0"

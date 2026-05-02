@@ -41,7 +41,20 @@ from agents import TelemetryData, VehicleIntelligenceOrchestrator
 load_dotenv()
 GROQ_API_KEY: str = os.environ.get("GROQ_API_KEY", "")
 WS_HOST: str      = os.environ.get("WS_HOST", "0.0.0.0")
-WS_PORT: int      = int(os.environ.get("WS_PORT", "8765"))
+# Render / Heroku / Fly inject $PORT — fall back to WS_PORT, then 8765
+WS_PORT: int      = int(os.environ.get("PORT") or os.environ.get("WS_PORT") or "8765")
+
+
+# ── HTTP health check (so Render/Fly can hit GET / before WS upgrade) ─
+async def _health_check(connection, request):
+    """Return HTTP 200 for non-WebSocket requests (e.g. Render health probe)."""
+    if request.headers.get("Upgrade", "").lower() == "websocket":
+        return None  # let websockets handle the WS upgrade
+    return connection.respond(
+        200,
+        '{"status":"ok","service":"rivian-vehicle-intelligence",'
+        '"version":"3.0"}\n',
+    )
 
 # ── Live Chat — Groq-powered Rivian Support AI ───────────────────────
 GROQ_CHAT_URL  = "https://api.groq.com/openai/v1/chat/completions"
@@ -468,7 +481,10 @@ async def main() -> None:
     )
 
     try:
-        async with websockets.serve(ws_handler, WS_HOST, WS_PORT):
+        async with websockets.serve(
+            ws_handler, WS_HOST, WS_PORT,
+            process_request=_health_check,
+        ):
             await telemetry_loop(orchestrator)
     except asyncio.CancelledError:
         pass
